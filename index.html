@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mesila · admission calculator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%229%22%20fill%3D%22%232f55d4%22/%3E%3Cpath%20d%3D%22M8%2025%20C12%2017%2020%2017%2024%208%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223.2%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%228%22%20r%3D%223%22%20fill%3D%22%23ff6b3d%22/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/plex-sans-hebrew-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -35,13 +39,17 @@
 <a class="logo" href="#results" aria-label="Mesila home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#2f55d4"/><path d="M8 25 C12 17 20 17 24 8" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="24" cy="8" r="3" fill="#ff6b3d"/></svg><span>Mesila</span></a>
 <nav class="nav" id="nav"><a href="#track" data-n="calc">Calculator</a><a href="#results" data-n="results">Results</a><a href="#map" data-n="map">Map</a><a href="#places" data-n="places">Institutions</a></nav>
 <div class="me"><span class="saved" id="saved"></span><button class="meb" id="meb" type="button" aria-haspopup="true" aria-expanded="false"><img class="av" id="meImg" alt=""><span id="meName"></span></button>
-<div class="menu" id="menu" hidden><div class="mh"><b id="mnName"></b><div class="fine" id="mnMode"></div></div><button type="button" data-act="restart">Start over with empty grades</button><button type="button" data-act="sample">Load sample student</button><button type="button" data-act="forget">Delete my saved data</button><button type="button" data-act="out">Sign out</button></div></div>
+<div class="menu" id="menu" hidden><div class="mh"><b id="mnName"></b><div class="fine" id="mnMode"></div></div><button type="button" data-act="cust">Customize view</button><button type="button" data-act="restart">Start over with empty grades</button><button type="button" data-act="sample">Load sample student</button><button type="button" data-act="forget">Delete my saved data</button><button type="button" data-act="out">Sign out</button></div></div>
 </div></header>
 <div class="wrap" id="stepper"></div>
 <main class="wrap" id="main"></main>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="cust" role="dialog" aria-modal="true" aria-labelledby="custT" hidden></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 <script src="data/universities.js"></script>
 <script src="data/colleges.js"></script>
+<script src="data/towns.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
