@@ -6,6 +6,7 @@ Mesila (מסילה, "track") checks an Israeli applicant's bagrut, psychometric 
 - A five-step flow: school type, bagrut, psychometric, previous degree, results
 - Every campus on a map, sorted by distance from any of 1,244 Israeli towns and villages
 - Results as cards or a list. You can save programs, hide programs or whole institutions, and choose what each card shows
+- Dark neon theme by default, with a light theme one click away
 - Sign-in with a Claude account when the page runs as a Claude artifact; guest mode keeps everything in the browser
 
 ## Run it locally
@@ -50,6 +51,7 @@ scripts/build_towns.py  rebuilds data/towns.js
 | --- | --- |
 | `v0.3-prototype` | First full prototype: sign-in, stepper, campus map, 30 institutions, one HTML file |
 | `v0.4` | Split into files; every Israeli town; new fonts; customize panel, list view, save and hide |
+| `v0.5` | "Night line" look: dark-first neon theme with a light toggle, one colour per field, glowing route, map and status |
 
 ## Caveats
 
