@@ -15,7 +15,7 @@
 <div id="signin" hidden>
 <div class="si">
 <section class="si-b">
-<a class="logo" href="#signin" aria-label="Mesila"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgS" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset=".55" stop-color="#4f6bff"/><stop offset="1" stop-color="#1fc8ff"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgS)"/><path d="M8 25 C12 17 20 17 24 8" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="24" cy="8" r="3.2" fill="#ff3d9a" stroke="#fff" stroke-width="1.4"/></svg><span>Mesila</span></a>
+<a class="logo" href="#signin" aria-label="Mesila"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgS" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset=".55" style="stop-color:var(--a2)"/><stop offset="1" style="stop-color:var(--a3)"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgS)"/><path d="M8 25 C12 17 20 17 24 8" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="24" cy="8" r="3.2" style="fill:var(--a4)" stroke="#fff" stroke-width="1.4"/></svg><span>Mesila</span></a>
 <h1>Find every degree you can get into</h1>
 <p>Your bagrut, psychometric and any previous degree, checked against the real admission rules of Israel's universities and colleges.</p>
 <ul class="feat">
@@ -25,7 +25,7 @@
 </ul>
 <svg class="si-map" id="siMap" viewBox="0 0 140 400" aria-hidden="true"></svg>
 </section>
-<section class="si-f"><button class="thm" type="button" aria-label="Switch theme"></button><div class="si-card">
+<section class="si-f"><button class="thm mode" type="button" aria-label="Switch mode"></button><div class="si-card">
 <h2 id="siT">Sign in</h2>
 <p class="mute" id="siP" style="margin:-6px 0 0">Save your grades and come back to them any time.</p>
 <button class="acct" id="acctBtn" type="button" disabled><span class="spin" id="acctSpin"></span><img id="acctImg" alt="" hidden><span><b id="acctName">Checking your Claude account…</b><small id="acctSub">One moment</small></span></button>
@@ -37,10 +37,10 @@
 </div>
 <div id="app" hidden>
 <header class="top"><div class="topi">
-<a class="logo" href="#results" aria-label="Mesila home"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset=".55" stop-color="#4f6bff"/><stop offset="1" stop-color="#1fc8ff"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgA)"/><path d="M8 25 C12 17 20 17 24 8" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="24" cy="8" r="3.2" fill="#ff3d9a" stroke="#fff" stroke-width="1.4"/></svg><span>Mesila</span></a>
+<a class="logo" href="#results" aria-label="Mesila home"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset=".55" style="stop-color:var(--a2)"/><stop offset="1" style="stop-color:var(--a3)"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#lgA)"/><path d="M8 25 C12 17 20 17 24 8" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="24" cy="8" r="3.2" style="fill:var(--a4)" stroke="#fff" stroke-width="1.4"/></svg><span>Mesila</span></a>
 <nav class="nav" id="nav"><a href="#track" data-n="calc">Calculator</a><a href="#results" data-n="results">Results</a><a href="#map" data-n="map">Map</a><a href="#places" data-n="places">Institutions</a></nav>
-<div class="me"><span class="saved" id="saved"></span><button class="thm" type="button" aria-label="Switch theme"></button><button class="meb" id="meb" type="button" aria-haspopup="true" aria-expanded="false"><img class="av" id="meImg" alt=""><span id="meName"></span></button>
-<div class="menu" id="menu" hidden><div class="mh"><b id="mnName"></b><div class="fine" id="mnMode"></div></div><button type="button" data-act="cust">Customize view</button><button type="button" data-act="restart">Start over with empty grades</button><button type="button" data-act="sample">Load sample student</button><button type="button" data-act="forget">Delete my saved data</button><button type="button" data-act="out">Sign out</button></div></div>
+<div class="me"><span class="saved" id="saved"></span><button class="thm pal" type="button" data-act="cust" aria-label="Theme and layout" title="Theme and layout"></button><button class="meb" id="meb" type="button" aria-haspopup="true" aria-expanded="false"><img class="av" id="meImg" alt=""><span id="meName"></span></button>
+<div class="menu" id="menu" hidden><div class="mh"><b id="mnName"></b><div class="fine" id="mnMode"></div></div><button type="button" data-act="cust">Theme and layout</button><button type="button" data-act="restart">Start over with empty grades</button><button type="button" data-act="sample">Load sample student</button><button type="button" data-act="forget">Delete my saved data</button><button type="button" data-act="out">Sign out</button></div></div>
 </div></header>
 <div class="wrap" id="stepper"></div>
 <main class="wrap" id="main"></main>
@@ -51,6 +51,7 @@
 <script src="data/universities.js"></script>
 <script src="data/colleges.js"></script>
 <script src="data/towns.js"></script>
+<script src="data/logos.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

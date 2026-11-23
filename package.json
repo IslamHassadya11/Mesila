@@ -1,0 +1,13 @@
+{
+  "name": "mesila",
+  "private": true,
+  "description": "Israeli university and college admission calculator",
+  "scripts": {
+    "build:3d": "esbuild js/src/map3d.js --bundle --minify --format=iife --global-name=Mesila3D --outfile=js/map3d.js",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "three": "^0.180.0"
+  }
+}

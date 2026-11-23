@@ -38,7 +38,7 @@ const PROGS=[],PIX={};INST.forEach(u=>u.P.forEach(r=>{let id=u.id+'/'+(r[1].toLo
 const TOTAL=PROGS.length;
 INST.forEach(u=>u.n=PROGS.filter(p=>p.u===u).length);
 // ---------- emblems (original monograms, not the institutions' real logos)
-function emblem(u,s){s=s||36;const fs=u.mono.length>2?11:14;
+function emblem(u,s){s=s||36;const lg=(window.MESILA_LOGOS||{})[u.id];if(lg&&/^logos\/[\w.-]+$/.test(lg))return `<span class="em lg" title="${esc(u.name)}" style="width:${s}px;height:${s}px"><img src="${esc(lg)}" alt="" loading="lazy" decoding="async"></span>`;const fs=u.mono.length>2?11:14;
  return `<span class="em" title="${esc(u.name)}"><svg width="${s}" height="${s}" viewBox="0 0 40 40" aria-hidden="true">${u.type==='uni'?`<rect x="1" y="1" width="38" height="38" rx="11" fill="${u.c}"/><path d="M7 31c4-4 9-5.5 13-5.5S29 27 33 31" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none" stroke-linecap="round"/>`:`<circle cx="20" cy="20" r="19" fill="${u.c}"/><circle cx="20" cy="20" r="15" stroke="#fff" stroke-opacity=".28" stroke-width="1.5" fill="none"/>`}<text x="20" y="${u.type==='uni'?22.5:24.5}" text-anchor="middle" font-family="Bricolage,Plex Hebrew,sans-serif" font-size="${fs}" font-weight="750" fill="#fff">${esc(u.mono)}</text></svg></span>`}
 // ---------- state
 const SAMPLE={track:'gen',rows:[{s:'math',u:4,g:86},{s:'eng',u:5,g:88},{s:'heb',u:2,g:82},{s:'hist',u:2,g:78},{s:'civ',u:2,g:85},{s:'lit',u:2,g:76},{s:'bible',u:2,g:72},{s:'bio',u:5,g:87},{s:'psy',u:5,g:91}],pm:640,pq:628,pv:652,q:121,v:127,e:129,noPsy:false,deg:false,dAvg:85,dEx:'1',home:'5000',sample:true,stage:'track'};
@@ -47,8 +47,9 @@ const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return
 let S=LS.get('mesila.state')||clone(SAMPLE);if(!S.rows||!TRACKS[S.track])S=clone(SAMPLE);S.home=townId(S.home);
 let MODE=null,ACC=null,DOC=null,SAVED=null,acctReady=false;
 const UI={top:'all',st:'all',inst:'all',q:'',sort:'t',more:{},sel:null,zoom:'all'};
+let M3D=null,M3D_LOADING=null;
 // ---------- view preferences (saved with the grades)
-const DEF_VIEW={layout:'cards',dense:false,show:{kpis:true,fields:true,status:true,he:true,gauge:true,routes:true,checks:true,meta:true,live:true},hideShort:false,hidden:[],hiddenInst:[],saved:[]};
+const DEF_VIEW={layout:'cards',mapv:'3d',dense:false,show:{kpis:true,fields:true,status:true,he:true,gauge:true,routes:true,checks:true,meta:true,live:true},hideShort:false,hidden:[],hiddenInst:[],saved:[]};
 function V(){if(!S.view||typeof S.view!=='object')S.view=clone(DEF_VIEW);const v=S.view;for(const k in DEF_VIEW)if(v[k]===undefined)v[k]=clone(DEF_VIEW[k]);for(const k in DEF_VIEW.show)if(typeof v.show[k]!=='boolean')v.show[k]=true;return v}
 const isHidden=p=>{const v=V();return v.hidden.includes(p.id)||v.hiddenInst.includes(p.u.id)};
 const pool=()=>{const v=V();return PROGS.filter(p=>!isHidden(p)&&!(v.hideShort&&p.r.st==='out'))};
@@ -121,8 +122,8 @@ async function flush(){if(!DOC)return;const js=JSON.stringify(S);if(js===lastSav
 // ---------- sign-in
 function drawSiMap(){const unis=INST.filter(u=>u.type==='uni').map(u=>proj(u.lat,u.lon)).sort((a,b)=>a[1]-b[1]);
  let d=`M${unis[0][0].toFixed(1)},${unis[0][1].toFixed(1)}`;for(let k=1;k<unis.length;k++){const [x0,y0]=unis[k-1],[x1,y1]=unis[k],my=(y0+y1)/2;d+=` C${x0.toFixed(1)},${my.toFixed(1)} ${x1.toFixed(1)},${my.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`}
- $('#siMap').innerHTML=`<defs><linearGradient id="siTr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#22e1ff"/><stop offset=".5" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient><filter id="siGl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
- <path d="${outline()}" fill="rgba(34,225,255,.045)" stroke="#36d6ff" stroke-opacity=".75" stroke-width="1" filter="url(#siGl)"/>
+ $('#siMap').innerHTML=`<defs><linearGradient id="siTr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--a3)"/><stop offset=".5" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a4)"/></linearGradient><filter id="siGl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+ <path d="${outline()}" style="fill:color-mix(in srgb,var(--a3) 5%,transparent);stroke:var(--a3)" stroke-opacity=".75" stroke-width="1" filter="url(#siGl)"/>
  <path d="${d}" fill="none" stroke="url(#siTr)" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 3.2" filter="url(#siGl)" opacity=".95"/>`+
  INST.map(u=>{const [x,y]=proj(u.lat,u.lon),uni=u.type==='uni';return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${uni?3:1.9}" style="fill:${uni?'#ffffff':'color-mix(in srgb,'+u.c+' 55%,#ffffff)'}" filter="url(#siGl)"/>`}).join('')}
 function initialsImg(name,col){const t=((name||'').trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2)||'G').toUpperCase().replace(/[<>&"']/g,'');const c=/^#[0-9a-f]{3,8}$/i.test(col||'')?col:'#94a3b8';
@@ -156,7 +157,7 @@ function drawMe(){const acct=MODE==='acct'&&ACC;
 // ---------- routing
 const VIEWS=['signin','track','bagrut','psy','degree','results','map','places'],STAGES=[['track','School'],['bagrut','Bagrut'],['psy','Psychometric'],['degree','Degree'],['results','Results']];
 function go(v){if(location.hash!=='#'+v)location.hash=v;else route()}
-function route(){{const m=$('#menu');if(m)m.hidden=true;const mb=$('#meb');if(mb)mb.setAttribute('aria-expanded','false')}let v=location.hash.replace('#','');if(!VIEWS.includes(v))v=MODE?'results':'signin';
+function route(){if(M3D){M3D.dispose();M3D=null}{const m=$('#menu');if(m)m.hidden=true;const mb=$('#meb');if(mb)mb.setAttribute('aria-expanded','false')}let v=location.hash.replace('#','');if(!VIEWS.includes(v))v=MODE?'results':'signin';
  if(!MODE&&v!=='signin'){v='signin'}
  $('#signin').hidden=v!=='signin';$('#app').hidden=v==='signin';
  if(v==='signin'){siState();return}
@@ -261,7 +262,7 @@ function vResults(){const v=V(),ps=pool(),n=countsOf(ps),hid=PROGS.length-ps.len
  ${v.show.kpis&&bestU?`<div class="kpis"><div class="kpi hi"><span>Open now</span><b class="n">${n.in}</b><span>${n.close} more are close or on a waitlist</span></div>
  <div class="kpi" style="--c:var(--cyan)"><span>Most options at</span><b style="font-size:22px">${esc(bestU.name)}</b><span>${open[bestU.id]||0} of ${bestU.n} programs</span></div>
  <div class="kpi" style="--c:var(--close)"><span>Closest miss</span><b style="font-size:22px">${miss?esc(miss.u.short+' · '+miss.n):'—'}</b><span>${miss?`needs psychometric ${miss.r.need} (+${miss.r.need-miss.r.P})`:'nothing just out of reach'}</span></div>
- <div class="kpi" style="--c:var(--pink)"><span>${nxt?`+${nxt[0]-R.i.pm} psychometric points`:'Psychometric'}</span><b style="font-size:22px">${nxt?`opens ${nxt[1]-n.in} more`:'no easy gains'}</b><svg viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spkL" x1="0" x2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset=".55" stop-color="#4f6bff"/><stop offset="1" stop-color="#1fc8ff"/></linearGradient><linearGradient id="spkA" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#4f6bff" stop-opacity=".35"/><stop offset="1" stop-color="#4f6bff" stop-opacity="0"/></linearGradient></defs><path d="${d}V44H0Z" fill="url(#spkA)"/><path class="ln" d="${d}" fill="none" stroke="url(#spkL)" stroke-width="2.2"/>${R.i.pm>=450?`<line x1="${X(R.i.pm)}" x2="${X(R.i.pm)}" y1="0" y2="44" stroke="var(--acc)" stroke-width="2" stroke-dasharray="3 3"/>`:''}</svg></div></div>`:''}
+ <div class="kpi" style="--c:var(--pink)"><span>${nxt?`+${nxt[0]-R.i.pm} psychometric points`:'Psychometric'}</span><b style="font-size:22px">${nxt?`opens ${nxt[1]-n.in} more`:'no easy gains'}</b><svg viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spkL" x1="0" x2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset=".55" style="stop-color:var(--a2)"/><stop offset="1" style="stop-color:var(--a3)"/></linearGradient><linearGradient id="spkA" x1="0" x2="0" y1="0" y2="1"><stop offset="0" style="stop-color:var(--a2);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--a2);stop-opacity:0"/></linearGradient></defs><path d="${d}V44H0Z" fill="url(#spkA)"/><path class="ln" d="${d}" fill="none" stroke="url(#spkL)" stroke-width="2.2"/>${R.i.pm>=450?`<line x1="${X(R.i.pm)}" x2="${X(R.i.pm)}" y1="0" y2="44" stroke="var(--acc)" stroke-width="2" stroke-dasharray="3 3"/>`:''}</svg></div></div>`:''}
  <div class="fb" id="fb"></div><div id="list"></div>`;drawFilters();drawList()}
 function drawFilters(){const v=V(),ps=pool(),tc=k=>ps.filter(p=>instOK(p)&&(k==='all'||p.top===k)).length,svN=ps.filter(p=>instOK(p)&&v.saved.includes(p.id)).length;
  if(UI.st==='saved'&&!svN)UI.st='all';
@@ -293,8 +294,9 @@ let custFrom=null,lastHidden=null,toastT=0;
 function sw(path,label,hint){const v=V(),val=path.split('.').reduce((o,k)=>o&&o[k],v);
  return `<label class="sw"><input type="checkbox" data-pref="${path}"${val?' checked':''}><span class="tr" aria-hidden="true"></span><span><b>${label}</b>${hint?`<small>${hint}</small>`:''}</span></label>`}
 function drawCust(){const v=V(),hid=v.hidden.map(id=>PIX[id]).filter(Boolean),grp=t=>INST.filter(u=>u.type===t).map(u=>`<label class="ck2"><input type="checkbox" data-inst="${u.id}"${v.hiddenInst.includes(u.id)?'':' checked'}>${emblem(u,22)}<span>${esc(u.name)}</span><small>${u.n}</small></label>`).join('');
- $('#cust').innerHTML=`<div class="dr-h"><h3 id="custT">Customize</h3><button type="button" class="ib" data-act="custClose" aria-label="Close">${IC.x}</button></div>
+ $('#cust').innerHTML=`<div class="dr-h"><h3 id="custT">Look and layout</h3><button type="button" class="ib" data-act="custClose" aria-label="Close">${IC.x}</button></div>
  <div class="dr-b">
+ ${themeSection()}
  <section><h4>Layout</h4><div class="tog wide" role="group" aria-label="Layout"><button type="button" data-layout="cards" aria-pressed="${v.layout==='cards'}">${IC.cards}<span>Cards</span></button><button type="button" data-layout="list" aria-pressed="${v.layout==='list'}">${IC.list}<span>List</span></button></div>
   ${sw('dense','Compact cards','Smaller cards, more on screen')}</section>
  <section><h4>Results page</h4>${sw('show.kpis','Summary cards')}${sw('show.fields','Field filters')}${sw('show.status','Status filter')}</section>
@@ -307,6 +309,7 @@ function drawCust(){const v=V(),hid=v.hidden.map(id=>PIX[id]).filter(Boolean),gr
   ${hid.length?`<ul class="hl">${hid.map(p=>`<li><span>${esc(p.n)} <small>${esc(p.u.short)}</small></span><button type="button" class="lnk" data-unhide="${p.id}">Show</button></li>`).join('')}</ul>`:'<p class="fine" style="margin:6px 0 0">Use the eye button on any program to hide it.</p>'}
  </section></div>
  <div class="dr-f"><button type="button" class="btn ghost" data-act="viewReset">Reset to default</button><button type="button" class="btn" data-act="custClose">Done</button></div>`}
+function keepScroll(f){const b=$('#cust .dr-b'),y=b?b.scrollTop:0;f();const b2=$('#cust .dr-b');if(b2)b2.scrollTop=y}
 function openCust(from){custFrom=from||document.activeElement;drawCust();$('#cust').hidden=false;$('#scrim').hidden=false;document.body.classList.add('locked');const f=$('#cust .dr-h .ib');if(f)f.focus()}
 function closeCust(){if($('#cust').hidden)return;$('#cust').hidden=true;$('#scrim').hidden=true;document.body.classList.remove('locked');const f=custFrom&&document.contains(custFrom)?custFrom:($('.rh [data-act=cust]')||$('#meb'));if(f)f.focus()}
 function rerender(){const v=location.hash.replace('#','');if(v==='results')vResults();else if(['track','bagrut','psy','degree'].includes(v))route();else if(v==='places'||v==='map')route()}
@@ -320,10 +323,35 @@ let VB=ZOOMS.all[1].slice(),anim=0;
 const dist=(a,b,c,d)=>{const R6=6371,t=x=>x*Math.PI/180,dl=t(c-a),dn=t(d-b),h=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 2*R6*Math.asin(Math.sqrt(h))};
 const homeT=()=>TOWNIX[S.home]||TOWNIX['5000']||{en:'Tel Aviv-Yafo',he:'תל אביב - יפו',lat:32.085,lon:34.782};
 const home=()=>{const t=homeT();return [t.en,t.lat,t.lon]};
-function vMap(){$('#main').innerHTML=`<div class="sech"><h2>Every campus on the map</h2><span class="mute">Distances are straight-line from ${esc(homeT().en)}. Change your town on the <a href="#track">first step</a>.</span></div>
- <div class="mapl"><div class="mapc"><div class="zoom">${Object.entries(ZOOMS).map(([k,z])=>`<button type="button" data-z="${k}" aria-pressed="${UI.zoom===k}">${z[0]}</button>`).join('')}</div><svg id="msvg" role="img" aria-label="Map of campuses"></svg><div class="mleg"><span><i style="border-radius:3px;background:var(--brand)"></i>University</span><span><i style="border-radius:50%;background:var(--acc)"></i>College</span><span><i style="border-radius:50%;background:var(--ink);width:9px;height:9px"></i>Home</span></div></div>
+function vMap(){const v=V(),three=v.mapv==='3d';
+ $('#main').innerHTML=`<div class="sech"><h2>Every campus on the map</h2><span class="mute">Distances are straight-line from ${esc(homeT().en)}. Change your town on the <a href="#track">first step</a>.</span></div>
+ <div class="mapl"><div class="mapc" id="mapc"><div class="zoom">${Object.entries(ZOOMS).map(([k,z])=>`<button type="button" data-z="${k}" aria-pressed="${UI.zoom===k}">${z[0]}</button>`).join('')}</div>
+ <div class="tog mview" role="group" aria-label="Map style"><button type="button" data-mapv="2d" aria-pressed="${!three}">Flat</button><button type="button" data-mapv="3d" aria-pressed="${three}">3D</button></div>
+ ${three?`<div id="m3box" style="position:absolute;inset:0"><div class="m3load">Loading the 3D map…</div></div><div class="m3hint">Column height = programs open to you. Drag to turn, scroll to zoom, click a column.</div>`:`<svg id="msvg" role="img" aria-label="Map of campuses"></svg>`}
+ <div class="mleg"><span><i style="border-radius:3px;background:var(--brand)"></i>University</span><span><i style="border-radius:50%;background:var(--acc)"></i>College</span><span><i style="border-radius:50%;background:var(--ink);width:9px;height:9px"></i>Home</span></div></div>
  <div><div id="det"></div><div class="list" id="mlist"></div></div></div>`;
- drawMapList();drawMap();const ro=new ResizeObserver(drawMap);ro.observe($('#msvg'))}
+ drawMapList();
+ if(three)start3D();else{drawMap();const ro=new ResizeObserver(drawMap);ro.observe($('#msvg'))}}
+// ---------- 3D map (js/map3d.js, loaded on first use)
+const probe=()=>{let e=$('#cprobe');if(!e){e=document.createElement('i');e.id='cprobe';e.style.cssText='position:absolute;width:0;height:0;overflow:hidden';document.body.appendChild(e)}return e};
+function cssHex(name){const e=probe();e.style.color='';e.style.color=`var(${name})`;const c=getComputedStyle(e).color;let m=c.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)/);let rgb;
+ if(m)rgb=[+m[1],+m[2],+m[3]];else{m=c.match(/color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/);rgb=m?[m[1]*255,m[2]*255,m[3]*255]:[128,128,128]}
+ return '#'+rgb.map(x=>Math.round(Math.max(0,Math.min(255,x))).toString(16).padStart(2,'0')).join('')}
+function sceneColors(){const t=TH(),dark=t.mode!=='light';return {dark,glow:t.glow/100,sea:cssHex('--sea'),land:cssHex('--land'),coast:cssHex('--coast'),a1:cssHex('--a1'),a2:cssHex('--a2'),a3:cssHex('--a3'),a4:cssHex('--a4'),ink:cssHex('--ink')}}
+function load3D(){if(window.Mesila3D)return Promise.resolve(window.Mesila3D);if(M3D_LOADING)return M3D_LOADING;
+ M3D_LOADING=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='js/map3d.js';sc.onload=()=>window.Mesila3D?ok(window.Mesila3D):no(new Error('3D module missing'));sc.onerror=()=>{M3D_LOADING=null;no(new Error('3D module failed to load'))};document.head.appendChild(sc)});return M3D_LOADING}
+function flat(msg){const v=V();v.mapv='2d';save();route();if(msg)toast(msg)}
+function start3D(){load3D().then(lib=>{const box=$('#m3box');if(!box)return;
+ if(!lib.supported()){flat('3D needs WebGL, which this browser has turned off. Showing the flat map.');return}
+ const hm=homeT(),P=(la,lo)=>proj(la,lo),reg=(la,lo,dist)=>{const [x,y]=P(la,lo);return {x,y,dist}};
+ box.innerHTML='';
+ try{M3D=lib.create(box,{center:P(31.4,35.0),outline:OUT.map(([a,b])=>P(a,b)),
+  places:INST.map(u=>{const [x,y]=P(u.lat,u.lon);return {id:u.id,label:u.short,type:u.type,x,y,color:u.c,value:u.open||0}}),
+  home:(()=>{const [x,y]=P(hm.lat,hm.lon);return {x,y,label:hm.en}})(),
+  regions:{all:reg(31.5,35.0,470),north:reg(32.8,35.25,230),center:reg(32.06,34.88,190),jlm:reg(31.79,35.15,130),south:reg(31.05,34.85,300)},
+  view:UI.zoom,sel:UI.sel,colors:sceneColors(),reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,label:'3D map: every campus as a column, taller where more programs are open to you',
+  onPick:id=>{UI.sel=id;drawMapList();M3D&&M3D.select(id);if(innerWidth<1000)$('#det').scrollIntoView({behavior:'smooth',block:'start'})}})}
+ catch(e){M3D=null;flat('The 3D map could not start here. Showing the flat map.')}}).catch(()=>flat('The 3D map could not load. Showing the flat map.'))}
 function drawMap(){const sv=$('#msvg');if(!sv)return;const W=sv.clientWidth,H=sv.clientHeight;if(!W||!H)return;
  const [vx,vy,vw,vh]=VB,k=Math.max(vw/W,vh/H),hm=home(),[hx,hy]=proj(hm[1],hm[2]),zoomed=UI.zoom!=='all';
  sv.setAttribute('viewBox',VB.map(v=>v.toFixed(2)).join(' '));
@@ -374,7 +402,9 @@ document.addEventListener('click',ev=>{if(ev.target.id==='scrim'){closeCust();re
  const b=ev.target.closest('button,[data-pin]');
  if(!$('#menu').hidden&&!ev.target.closest('.me')){$('#menu').hidden=true;$('#meb').setAttribute('aria-expanded','false')}
  if(!b)return;const d=b.dataset;
- if(b.classList.contains('thm')){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');return}
+ if(b.classList.contains('mode')&&b.classList.contains('thm')){const t=TH();t.mode=t.mode==='dark'?'light':'dark';applyTheme(t);return}
+ if(d.pal){const t=TH();if(d.pal==='custom'&&t.pal!=='custom'){const q=palOf(t);t.custom={a1:q[1],a2:q[2],a3:q[3],a4:q[4],bg:q[5]}}t.pal=d.pal;applyTheme(t);keepScroll(drawCust);return}
+ if(d.mode){const t=TH();t.mode=d.mode;applyTheme(t);$$('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===d.mode));return}
  if(b.id==='acctBtn'){enter('acct');return}
  if(b.id==='guestBtn'){enter('guest');return}
  if(b.id==='meb'){const m=$('#menu');m.hidden=!m.hidden;b.setAttribute('aria-expanded',String(!m.hidden));return}
@@ -384,6 +414,7 @@ document.addEventListener('click',ev=>{if(ev.target.id==='scrim'){closeCust();re
   if(d.act==='sample'){S={...clone(SAMPLE),home:S.home,view:S.view};save();route();return}
   if(d.act==='cust'){openCust(d.act==='cust'&&b.closest('#menu')?$('#meb'):b);return}
   if(d.act==='custClose'){closeCust();return}
+  if(d.act==='thRandom'){const t=TH();t.custom=randomPalette();t.pal='custom';applyTheme(t);keepScroll(drawCust);return}
   if(d.act==='clearf'){UI.q='';UI.top='all';UI.st='all';UI.inst='all';UI.more={};drawFilters();drawList();return}
   if(d.act==='instAll'){const v=V();v.hiddenInst=v.hiddenInst.filter(id=>IX[id].type!==d.t2);save();drawCust();rerender();return}
   if(d.act==='unhideAll'){V().hidden=[];save();drawCust();rerender();return}
@@ -402,8 +433,9 @@ document.addEventListener('click',ev=>{if(ev.target.id==='scrim'){closeCust();re
  if(d.t){UI.top=d.t;UI.more={};drawFilters();drawList();return}
  if(d.s){UI.st=d.s;drawFilters();drawList();return}
  if(d.more){UI.more[d.more]=1;drawList();return}
- if(d.z){zoomTo(d.z);return}
- if(d.pin!=null){UI.sel=d.pin||null;drawMapList();drawMap();if(UI.sel&&innerWidth<1000)$('#det').scrollIntoView({behavior:'smooth',block:'start'});return}
+ if(d.z){if(M3D){UI.zoom=d.z;$$('[data-z]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.z===d.z));M3D.flyTo(d.z)}else zoomTo(d.z);return}
+ if(d.mapv){V().mapv=d.mapv;save();route();return}
+ if(d.pin!=null){UI.sel=d.pin||null;drawMapList();if(M3D)M3D.select(UI.sel);else drawMap();if(UI.sel&&innerWidth<1000)$('#det').scrollIntoView({behavior:'smooth',block:'start'});return}
  if(d.show){UI.inst=d.show;UI.top='all';UI.st='all';UI.q='';UI.sort='t';go('results');return}
  if(d.onmap){UI.sel=d.onmap;go('map');return}
 });
@@ -414,6 +446,9 @@ document.addEventListener('keydown',ev=>{
   if(ev.key==='Escape'){if(!ul.hidden){ev.preventDefault();closeHome(true)}return}}
  if(!$('#cust').hidden){if(ev.key==='Escape'){ev.preventDefault();closeCust();return}
   if(ev.key==='Tab'){const f=$$('#cust button,#cust input');const a=f[0],z=f[f.length-1];if(ev.shiftKey&&document.activeElement===a){ev.preventDefault();z.focus()}else if(!ev.shiftKey&&document.activeElement===z){ev.preventDefault();a.focus()}}}if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('g.pin')){ev.preventDefault();ev.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}if(ev.key==='Escape'&&!$('#menu').hidden){$('#menu').hidden=true}});
+document.addEventListener('input',ev=>{const t=ev.target;
+ if(t.dataset&&t.dataset.thr){const th=TH();th[t.dataset.thr]=+t.value;applyTheme(th);const o=t.parentNode.querySelector('output');if(o)o.textContent=t.value}
+ else if(t.dataset&&t.dataset.thc){const th=TH();if(HEX.test(t.value)){th.custom[t.dataset.thc]=t.value;th.pal='custom';applyTheme(th)}}});
 document.addEventListener('focusin',ev=>{if(ev.target.id==='homeQ'){ev.target.select();drawHome()}});
 document.addEventListener('focusout',ev=>{if(ev.target.id==='homeQ')setTimeout(()=>{if(document.activeElement!==$('#homeQ'))closeHome(true)},120)});
 document.addEventListener('input',ev=>{const t=ev.target,tr=t.closest&&t.closest('tr[data-i]');
@@ -429,15 +464,43 @@ document.addEventListener('input',ev=>{const t=ev.target,tr=t.closest&&t.closest
 document.addEventListener('change',ev=>{const t=ev.target;
  if(t.id==='instSel'){UI.inst=t.value;UI.more={};drawFilters();drawList()}
  else if(t.id==='sort'){UI.sort=t.value;UI.more={};drawList()}
+ else if(t.dataset&&t.dataset.thb){const th=TH();th[t.dataset.thb]=t.checked;applyTheme(th)}
  else if(t.dataset&&t.dataset.pref){const v=V(),ks=t.dataset.pref.split('.');let o=v;ks.slice(0,-1).forEach(k=>o=o[k]);o[ks[ks.length-1]]=t.checked;save();rerender()}
  else if(t.dataset&&t.dataset.inst){const v=V(),id=t.dataset.inst;v.hiddenInst=t.checked?v.hiddenInst.filter(x=>x!==id):[...new Set([...v.hiddenInst,id])];if(UI.inst===id)UI.inst='all';save();rerender()}
  else if(t.closest&&t.closest('tr[data-i]')&&t.tagName==='SELECT'){const r=S.rows[+t.closest('tr[data-i]').dataset.i];if(t.dataset.k==='s')r.s=t.value;else r.u=+t.value;S.sample=false;save();compute();rawNote();refreshLive()}});
 window.addEventListener('hashchange',route);
-// ---------- theme (dark by default)
-const SUN='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',MOON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
-function applyTheme(t){t=t==='light'?'light':'dark';document.documentElement.dataset.theme=t;LS.set('mesila.theme',t);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#f5f6fb':'#05060d';
- $$('.thm').forEach(b=>{b.innerHTML=t==='dark'?SUN:MOON;b.setAttribute('aria-label',t==='dark'?'Switch to light theme':'Switch to dark theme');b.title=b.getAttribute('aria-label')})}
-applyTheme(LS.get('mesila.theme')||'dark');
+// ---------- themes: four palette colours + a dark base; dark or light mode; glow, roundness, ambient light
+const PALETTES={night:['Night line','#7c4dff','#4f6bff','#1fc8ff','#ff3d9a','#05060d'],synth:['Synthwave','#ff2e97','#9b3dff','#ffa53d','#2de2e6','#0d0418'],aurora:['Aurora','#14d9a0','#1fa2ff','#9b7bff','#ffd23d','#020f10'],
+ ember:['Ember','#ff5a36','#ff8f3d','#ffd23d','#ff3d9a','#100806'],ocean:['Deep sea','#2563ff','#06b6d4','#2dd4bf','#a78bfa','#020a18'],signal:['Signal','#a3ff12','#2bffa3','#22e1ff','#ff3d9a','#040704']};
+const DEF_THEME={pal:'night',mode:'dark',glow:44,round:60,amb:true,custom:{a1:'#7c4dff',a2:'#4f6bff',a3:'#1fc8ff',a4:'#ff3d9a',bg:'#05060d'}};
+const SUN='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',MOON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+ PAL_IC='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-4-4-7.2-9-7.2z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7.2" r="1.2"/><circle cx="15" cy="7.6" r="1.2"/></svg>';
+const HEX=/^#[0-9a-f]{6}$/i;
+function TH(){let t=LS.get('mesila.theme');if(!t||typeof t!=='object')t={...clone(DEF_THEME),mode:t==='light'?'light':'dark'};
+ for(const k in DEF_THEME)if(t[k]===undefined)t[k]=clone(DEF_THEME[k]);for(const k in DEF_THEME.custom)if(!HEX.test(t.custom[k]||''))t.custom[k]=DEF_THEME.custom[k];if(!PALETTES[t.pal]&&t.pal!=='custom')t.pal='night';return t}
+const palOf=t=>t.pal==='custom'?['Custom',t.custom.a1,t.custom.a2,t.custom.a3,t.custom.a4,t.custom.bg]:PALETTES[t.pal];
+function lum(h){const n=parseInt(h.slice(1),16),f=c=>(c/=255)<=.03928?c/12.92:((c+.055)/1.055)**2.4;return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255)}
+function applyTheme(t){t=t||TH();const p=palOf(t),R=document.documentElement,st=R.style,dark=t.mode!=='light';
+ R.dataset.theme=dark?'dark':'light';
+ [['--a1',p[1]],['--a2',p[2]],['--a3',p[3]],['--a4',p[4]],['--bgD',p[5]]].forEach(([k,v])=>st.setProperty(k,v));
+ st.setProperty('--on',(lum(p[1])+lum(p[2]))/2>.4?'#0a0d1f':'#ffffff');
+ st.setProperty('--gp',Math.round(dark?t.glow:t.glow*.12)+'%');st.setProperty('--aur',Math.round(dark?6+t.glow*.4:3+t.glow*.12)+'%');st.setProperty('--amb',t.amb?'1':'0');
+ const r=t.round/100;st.setProperty('--r1',(3+r*13).toFixed(1)+'px');st.setProperty('--r2',(4+r*18).toFixed(1)+'px');st.setProperty('--r3',(5+r*25).toFixed(1)+'px');
+ LS.set('mesila.theme',t);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?p[5]:'#f6f7fb';
+ $$('.thm.mode').forEach(b=>{b.innerHTML=dark?SUN:MOON;b.setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');b.title=b.getAttribute('aria-label')});
+ $$('.thm.pal').forEach(b=>{b.innerHTML=PAL_IC});
+ if(typeof M3D!=='undefined'&&M3D)M3D.restyle(sceneColors());return t}
+function hsl2hex(h,s,l){h=((h%360)+360)%360;s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('')}
+function randomPalette(){const h=Math.random()*360,step=24+Math.random()*30,sat=82+Math.random()*16;return {a1:hsl2hex(h,sat,62),a2:hsl2hex(h+step,sat,58),a3:hsl2hex(h+step*2,sat,60),a4:hsl2hex(h+180+Math.random()*40-20,95,62),bg:hsl2hex(h,45,4)}}
+function themeSection(){const t=TH(),p=palOf(t);
+ return `<section id="themeSec"><h4>Theme</h4><div class="thg">${Object.entries(PALETTES).map(([k,q])=>`<button type="button" class="ths" data-pal="${k}" aria-pressed="${t.pal===k}" style="--s1:${q[1]};--s2:${q[2]};--s3:${q[3]};--s4:${q[4]};--sb:${q[5]}"><span class="sw3"></span>${q[0]}</button>`).join('')}<button type="button" class="ths cu" data-pal="custom" aria-pressed="${t.pal==='custom'}"><span class="sw3"></span>Custom</button></div>
+ <div class="tog wide" role="group" aria-label="Mode"><button type="button" data-mode="dark" aria-pressed="${t.mode==='dark'}">${MOON}<span>Dark</span></button><button type="button" data-mode="light" aria-pressed="${t.mode==='light'}">${SUN}<span>Light</span></button></div>
+ ${t.pal==='custom'?`<div class="cc">${[['a1','Main'],['a2','Blend'],['a3','Highlight'],['a4','Accent'],['bg','Night base']].map(([k,l])=>`<label><input type="color" data-thc="${k}" value="${t.custom[k]}" aria-label="${l} colour"><span>${l}</span></label>`).join('')}</div>
+  <div class="ccb"><button type="button" class="btn sec sm" data-act="thRandom">Surprise me</button></div>`:''}
+ <label class="sl"><span>Glow</span><input type="range" min="0" max="100" value="${t.glow}" data-thr="glow" aria-label="Glow"><output>${t.glow}</output></label>
+ <label class="sl"><span>Roundness</span><input type="range" min="0" max="100" value="${t.round}" data-thr="round" aria-label="Roundness"><output>${t.round}</output></label>
+ <label class="sw"><input type="checkbox" data-thb="amb"${t.amb?' checked':''}><span class="tr" aria-hidden="true"></span><span><b>Ambient light</b><small>The coloured glow and dot grid behind the page</small></span></label></section>`}
+applyTheme();
 // ---------- boot
 {const e=$('#siCount');if(e)e.textContent=TOTAL+' programs'}
 drawSiMap();
